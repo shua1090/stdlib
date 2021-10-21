@@ -38,6 +38,7 @@ int main() {
     val.add(5);
     val.add(7);
     val.add(10);
+    val.add(12);
     for (int i = 0; i < val.length(); i++) {
         printf("Value: %i \n", val.get(i));
     }

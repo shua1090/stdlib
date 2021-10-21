@@ -137,19 +137,22 @@ public:
 
     ~LinkedList_s() {
         ListNode<T> *current = head;
+        ListNode<T> *next = current->next;
         while (true) {
-            ListNode<T> *next = current->next;
-            if (next == nullptr) return;
+            
+            if (next == nullptr){delete current; return;}
             else {
                 delete current;
             }
+            current = next;
+            next = current->next;
         }
     }
 
     void add(T value) {
         if (head == nullptr) {
             head = new ListNode<T>{value};
-            tail = new ListNode<T>{value};
+            tail = head;
             size++;
         } else {
             ListNode<T> *current;
@@ -165,9 +168,11 @@ public:
             printf("Index Out of Bounds Error");
             return NULL;
         }
-        int i = 0;
+        container_size i = 0;
         ListNode<T> *result = this->head;
+        // printf("Next: %p /n", result->next);
         while (i < index && result->next != nullptr) {
+            // printf("Moving\n");
             result = result->next;
             i++;
         }
