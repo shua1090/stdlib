@@ -33,14 +33,25 @@ void testRemove() {
     }
 }
 
-unsigned int hashFunc(char a){
-    return (unsigned int) a;
+unsigned int hashFunc(std::string a) {
+    unsigned int val = 0;
+    for (int i = 0; i < a.length(); i++) {
+        val += val ^ a.at(i);
+    }
+    return val;
 }
 
+#include <string>
+
 int main() {
-    HashTable<char, int> tab;
-    tab.addHashFunction(&hashFunc);
-    tab.add('a', 5);
-    // printf("%i\n", )
+    HashTable<std::string, int> dictionary;
+    dictionary.addHashFunction(&hashFunc);
+    std::cout << hashFunc("two") << std::endl;
+    dictionary.add("one", 1);
+    dictionary.add("two", 2);
+    dictionary.add("three", 3);
+    dictionary.add("four", 4);
+    dictionary.print();
+    printf("%i-%i\n", dictionary.get("four"), dictionary.get("three"));
     return 0;
 }

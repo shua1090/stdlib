@@ -51,7 +51,7 @@ public:
 
     void add(T value) {
         if (this->size + 1 > this->capacity) {
-            T *temp = (T *) calloc(this->capacity*2, sizeof(T));
+            T *temp = (T *) calloc(this->capacity * 2, sizeof(T));
             for (int i = 0; i < this->size; i++) {
                 temp[i] = this->beginning[i];
             }
@@ -68,7 +68,8 @@ public:
 
     T get(container_size index) {
         if (index >= this->size || index < 0) {
-            return 0;
+            printf("Index Out of Bounds\n");
+            exit(-1);
         } else {
             return this->beginning[index];
         }
@@ -124,7 +125,7 @@ public:
         return this->size;
     }
 
-    T& operator[](container_size index){
+    T &operator[](container_size index) {
         if (index >= this->size || index < 0) {
             printf("IndexOutOfRange");
             exit(-1);
@@ -152,13 +153,16 @@ private:
     ListNode<T> *tail = nullptr;
 public:
     LinkedList_s() {};
+
     ~LinkedList_s() {
         ListNode<T> *current = head;
         ListNode<T> *next = current->next;
         while (true) {
-            
-            if (next == nullptr){delete current; return;}
-            else {
+
+            if (next == nullptr) {
+                delete current;
+                return;
+            } else {
                 delete current;
             }
             current = next;
@@ -180,25 +184,24 @@ public:
         }
     };
 
-    T remove(container_size index){
+    T remove(container_size index) {
         if (index >= this->size || index < 0) {
             printf("Index Out of Bounds Error");
             return NULL;
         }
         container_size i = 0;
         ListNode<T> *result = this->head;
-        while (i < index-1 && result->next != nullptr) {
+        while (i < index - 1 && result->next != nullptr) {
             result = result->next;
             i++;
         }
         T val = result->next->value;
-        if (index == 0){
+        if (index == 0) {
             auto l = result->next;
             delete head;
             if (l == nullptr) tail = nullptr;
             else head = l;
-        }
-        else if (result->next->next == nullptr){
+        } else if (result->next->next == nullptr) {
             tail = result;
             delete result->next;
         } else {
@@ -229,57 +232,96 @@ public:
 };
 
 template<class V, class K>
-struct Pair{
+struct Pair {
     V key;
     K value;
 };
 
-template <class V, class K>
-struct Bucket{
+template<class V, class K>
+struct Bucket {
     ArrayList<Pair<V, K>> values;
-    void add(Pair<V, K> val){
+
+    void add(Pair<V, K> val) {
         values.add(val);
     }
 
-    K get(V key){
-        for (container_size i = 0; i < values.length; i++){
-            if (values[i].key == key){
+    K get(V key) {
+        for (container_size i = 0; i < values.length(); i++) {
+            if (values[i].key == key) {
                 return values[i].value;
             }
         }
         printf("Key DNE");
         exit(-1);
     }
+
+    void remove(V key) {
+        unsigned int index = -1;
+        for (container_size i = 0; i < values.length(); i++) {
+            if (values[i].key == key) {
+                index = i;
+                break;
+            }
+        }
+        if (index >= 0) values.remove(index);
+        return;
+    }
+
+    bool empty() {
+        return values.length() == 0;
+    }
+
 };
 
 template<class V, class K>
 class HashTable {
 private:
-    Bucket<V, K> * buckets[100];
+    Bucket<V, K> *buckets;
+
     unsigned int (*hashFunction)(V);
 
     unsigned int size = 0;
 
 public:
-    HashTable(){size = 100;};
+    HashTable() {
+        size = 100;
+        buckets = new Bucket<V, K>[100];
+    }
 
-    void addHashFunction(unsigned int (*userDefinedHashFunction)(V)){
+    ~HashTable() { delete[] buckets; }
+
+    void addHashFunction(unsigned int (*userDefinedHashFunction)(V)) {
         this->hashFunction = userDefinedHashFunction;
     }
 
-    unsigned int hash(V key){
+    unsigned int hash(V key) {
         return hashFunction(key);
     }
 
-    void add(V key, K value){
+    void add(V key, K value) {
         unsigned int bucketVal = hash(key) % size;
         // buckets[bucketVal].values = ArrayList<Pair<V, K>>();
-        buckets[bucketVal]->add(Pair<V, K>{key, value});
+        buckets[bucketVal].add(Pair<V, K>{key, value});
     }
 
-    K get (V key){
+    K get(V key) {
         unsigned int bucketVal = hash(key) % size;
-        buckets[bucketVal].get(key);
+        return buckets[bucketVal].get(key);
+    }
+
+#include <iostream>
+
+    void print() {
+        for (int i = 0; i < size; i++) {
+            if (!buckets[i].empty()) {
+                printf("Bucket %i{", i);
+                for (int j = 0; j < buckets[i].values.length(); j++) {
+                    std::cout << buckets[i].values.get(j).key << "-";
+                    printf("%i,", buckets[i].values.get(j).value);
+                }
+                printf("} \n");
+            }
+        }
     }
 };
 
