@@ -33,14 +33,14 @@ void testRemove() {
     }
 }
 
+unsigned int hashFunc(char a){
+    return (unsigned int) a;
+}
+
 int main() {
-    LinkedList_s<int> val;
-    val.add(5);
-    val.add(7);
-    val.add(10);
-    val.add(12);
-    for (int i = 0; i < val.length(); i++) {
-        printf("Value: %i \n", val.get(i));
-    }
+    HashTable<char, int> tab;
+    tab.addHashFunction(&hashFunc);
+    tab.add('a', 5);
+    // printf("%i\n", )
     return 0;
 }

@@ -15,7 +15,6 @@ enum ReturnCode {
     FATAL = -2    // A critical error occurred, reboot
 };
 
-
 template<class T>
 class ArrayList {
 protected:
@@ -40,9 +39,19 @@ public:
         this->size = 0;
     };
 
+    // ArrayList<T> (container_size initSize){
+    //     if (!(initSize >= 0)){
+    //         printf("Invalid initial capacity.");
+    //         exit(-1);
+    //     }
+    //     beginning = (T *) calloc(initSize, sizeof(T));
+    //     this->capacity = initSize;
+    //     this->size = 0;
+    // }
+
     void add(T value) {
         if (this->size + 1 > this->capacity) {
-            T *temp = (T *) calloc(this->capacity * 2, sizeof(T));
+            T *temp = (T *) calloc(this->capacity*2, sizeof(T));
             for (int i = 0; i < this->size; i++) {
                 temp[i] = this->beginning[i];
             }
@@ -115,6 +124,15 @@ public:
         return this->size;
     }
 
+    T& operator[](container_size index){
+        if (index >= this->size || index < 0) {
+            printf("IndexOutOfRange");
+            exit(-1);
+        } else {
+            return this->beginning[index];
+        }
+    }
+
     ~ArrayList() {
         free(this->beginning);
     }
@@ -134,7 +152,6 @@ private:
     ListNode<T> *tail = nullptr;
 public:
     LinkedList_s() {};
-
     ~LinkedList_s() {
         ListNode<T> *current = head;
         ListNode<T> *next = current->next;
@@ -163,6 +180,35 @@ public:
         }
     };
 
+    T remove(container_size index){
+        if (index >= this->size || index < 0) {
+            printf("Index Out of Bounds Error");
+            return NULL;
+        }
+        container_size i = 0;
+        ListNode<T> *result = this->head;
+        while (i < index-1 && result->next != nullptr) {
+            result = result->next;
+            i++;
+        }
+        T val = result->next->value;
+        if (index == 0){
+            auto l = result->next;
+            delete head;
+            if (l == nullptr) tail = nullptr;
+            else head = l;
+        }
+        else if (result->next->next == nullptr){
+            tail = result;
+            delete result->next;
+        } else {
+            auto l = result->next->next;
+            delete result->next;
+            result->next = l;
+        }
+        return val;
+    }
+
     T get(container_size index) {
         if (index >= this->size || index < 0) {
             printf("Index Out of Bounds Error");
@@ -170,9 +216,7 @@ public:
         }
         container_size i = 0;
         ListNode<T> *result = this->head;
-        // printf("Next: %p /n", result->next);
         while (i < index && result->next != nullptr) {
-            // printf("Moving\n");
             result = result->next;
             i++;
         }
@@ -184,28 +228,59 @@ public:
     }
 };
 
-//template <class T>
-//struct HeapValue{
-//    T value;
-//    HeapValue * leaf1 = nullptr;
-//    HeapValue * leaf2 = nullptr;
-//};
-//
-//template <class T>
-//class Heap{
-//    container_size size = 0;
-//    HeapValue<T> * head = nullptr;
-//
-//public:
-//    Heap<T>()= default;
-//    virtual int compare(T value, T parent) = 0;
-//    void insertElement(T value){
-//        T parent = *head->value;
-//        while (true){
-//            if (compare(value,) == -1){
-//
-//            }
-//        }
-//    }
-//};
+template<class V, class K>
+struct Pair{
+    V key;
+    K value;
+};
+
+template <class V, class K>
+struct Bucket{
+    ArrayList<Pair<V, K>> values;
+    void add(Pair<V, K> val){
+        values.add(val);
+    }
+
+    K get(V key){
+        for (container_size i = 0; i < values.length; i++){
+            if (values[i].key == key){
+                return values[i].value;
+            }
+        }
+        printf("Key DNE");
+        exit(-1);
+    }
+};
+
+template<class V, class K>
+class HashTable {
+private:
+    Bucket<V, K> * buckets[100];
+    unsigned int (*hashFunction)(V);
+
+    unsigned int size = 0;
+
+public:
+    HashTable(){size = 100;};
+
+    void addHashFunction(unsigned int (*userDefinedHashFunction)(V)){
+        this->hashFunction = userDefinedHashFunction;
+    }
+
+    unsigned int hash(V key){
+        return hashFunction(key);
+    }
+
+    void add(V key, K value){
+        unsigned int bucketVal = hash(key) % size;
+        // buckets[bucketVal].values = ArrayList<Pair<V, K>>();
+        buckets[bucketVal]->add(Pair<V, K>{key, value});
+    }
+
+    K get (V key){
+        unsigned int bucketVal = hash(key) % size;
+        buckets[bucketVal].get(key);
+    }
+};
+
 #endif //STDLIB_CONTAINER_H
